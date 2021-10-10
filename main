@@ -1,0 +1,118 @@
+#include <stdio.h>
+#include <string.h>
+
+#define NVM_buffer 30
+#define temp_buffer 20
+
+char fakeNVM[NVM_buffer] = { 0 };		/* simulate NVM memory */
+char temp[temp_buffer] = { 0 };		/* temporary log buffer */
+
+void WRITE_LOG()
+{
+	printf("enter your log:");
+	scanf_s("%s", temp, temp_buffer);
+	memcpy(fakeNVM + strlen(temp) + 1, fakeNVM, NVM_buffer - (strlen(temp) + 1));		/*NVM memory segment moved back*/
+	strcpy_s(fakeNVM, strlen(temp) + 1, temp);	/*write temporary logs to NVM*/
+	memset(temp, 0, temp_buffer);
+}
+
+void READ_LOG()
+{
+	int which_log = 0;
+	int num_log = 1;
+
+	printf("read which log:");
+	scanf_s("%d", &which_log);
+	if (1 == which_log)			/*the first log*/
+	{
+		printf("%s\n", fakeNVM);
+	}
+	else
+	{
+		for (int n = 0; n < NVM_buffer; n++)
+		{
+			if ('\0' == fakeNVM[n])			/*find the number of logs*/
+			{
+				num_log++;
+				if (0 == which_log - num_log)
+				{
+					for (int j = n + 1; j < n + 1 + temp_buffer; j++)		/*print log*/
+					{
+						if ('\0' == fakeNVM[j])
+						{
+							break;
+						}
+						if (NVM_buffer-1 == j && '\0' != fakeNVM[j])		/*last one*/
+						{
+							printf("%c", fakeNVM[j]);
+							printf("	this log is incomplete!");
+							break;
+						}
+						printf("%c", fakeNVM[j]);
+					}
+					printf("\n");
+				}
+			}
+		}
+	}
+}
+
+void CHECK_fakeNVM()
+{
+	//printf("temp's context is:%s\n", temp);
+	printf("fakeNVM's context is:");
+	for (int i = 0; i < NVM_buffer; i++)
+	{
+		if ('\0' == fakeNVM[i])
+		{
+			printf(" "); 
+		//	break;
+		}
+		printf("%c", fakeNVM[i]);
+	}
+	printf("\n");
+}
+
+void RING_buffer()
+{
+	int flag = 0;
+	scanf_s("%d", &flag);
+	switch (flag)
+	{
+		case 1:					/* write */
+		{
+			WRITE_LOG();
+			CHECK_fakeNVM();
+		}
+		break;
+
+		case 2:					/* read */
+		{
+			READ_LOG();
+		}
+		break;
+
+		case 3:					/* exit */
+		{
+			exit();
+		}
+		break;
+	}
+	system("pause");
+	//system("cls");
+}
+
+int main()
+{
+	printf("1 is write, 2 is read and 3 is exit !\n");
+	printf("please choose what you want !\n");
+
+	while (1)	/*analog log reading and writing*/
+	{
+		RING_buffer();
+	}
+
+	return 0;
+}
+
+
